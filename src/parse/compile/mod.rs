@@ -9,7 +9,6 @@ use std::sync::atomic::AtomicBool;
 use crossbeam_utils::atomic::AtomicConsume;
 use serde::{Deserialize, Serialize};
 
-#[repr(transparent)]
 #[derive(Debug, Deserialize, Serialize, Default)]
 pub(crate) struct Compiler<'c> {
     pub(crate) src: Cow<'c, str>,
@@ -20,7 +19,7 @@ impl<'c> Deref for Compiler<'c> {
 
     #[must_use]
     #[inline]
-    const fn deref(&self) -> &Self::Target {
+    fn deref(&self) -> &Self::Target {
         &self.src
     }
 }

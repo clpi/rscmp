@@ -1,34 +1,29 @@
-#![allow(dead_code)]
-
-use strum::{Display, S}
+use strum::{AsRefStr, AsStaticStr, Display, EnumIs, EnumIter};
 use std::fmt::Display;
-use crate::parse::Token;
+use std::ops::Not;
+use indexmap::set::MutableValues;
+use crate::parse::token::Token;
 use serde::{Deserialize, Serialize};
 use strum::EnumString;
 
-#[repr(transparent)]
-#[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct Control<'c, ty> {
-	kind: ControlKind<'c, ty>,
-	token: &'c Token<'c>,
+#[derive(Debug)]
+pub(crate) struct Control<'c> {
+	kind: ControlKind,
+	token: Token<'c>,
 	context: std::task::Context<'c>,
 }
 
-#[derive(Debug, Clone, EnumString, Serialize, Deserialize, Default, AsRefStr,)]
-#[serde(serialize_as = "snake_case")])]
-pub(crate) struct ControlKind<'c, Ty: Display + Clone + 'c> {
-	#[default]
-	#[doc(hidden)]
-	#[serde(serialize_with = "Control::serialize")]
-	Continue = 0x0000 << 0x0001,
-	Assign(Box<MutableValues>) = 0x0001 << 0x0001,,
-	Stop = 0x0002 << 0x0001,
-	Start = 0x0003 << 0x0001,
-	Break(Br) = 0x0004 << 0x0001,
-	Prune = 0x0005 << 0x0001,
-	Spawn = 0x0006 << 0x0001,
+#[derive(Debug, Display, EnumIs, AsRefStr, EnumString, Serialize, Deserialize, EnumIter)]
+#[strum(serialize_all = "snake_case", prefix = "control_")]
+pub(crate) enum ControlKind {
+	Continue,
+	Assign,
+	Stop,
+	Start,
+	Break,
+	Prune,
+	Spawn,
 }
-pub(crate) trait Controllable<'val, Val> {
-	#[default]
-	Not,
+pub(crate) trait Controllable{
+	type Control;
 }

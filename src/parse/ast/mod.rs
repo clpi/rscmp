@@ -1,10 +1,11 @@
 mod visitor;
 
+use std::borrow::Cow;
+use std::sync::atomic::AtomicBool;
 use serde::{Deserialize, Serialize};
 
-#[repr(transparent)]
 #[derive(Debug, Deserialize, Serialize, Default)]
-pub(crate) struct AstNode<'ast> {
-	pub(crate) src: &'ast str,
-	pub(crate) debug: bool,
+pub(crate) struct AstNode {
+	pub(crate) src: String,
+	pub(crate) debug: AtomicBool,
 }

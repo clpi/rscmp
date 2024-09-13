@@ -1,5 +1,5 @@
 use pest::error::{Error as PestError, ErrorVariant as PestErrorVariant};
-use strum::ParseError as StrumError;
+use strum::{AsRefStr, AsStaticStr, Display, EnumIs, EnumIter, FromRepr, IntoStaticStr, ParseError as StrumError, VariantNames};
 use std::{
     alloc::{Layout, LayoutError, System, GlobalAlloc},
     cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd, Reverse},
@@ -8,7 +8,6 @@ use std::{
     thread::{AccessError, JoinHandle, ThreadId, Result as ThreadResult},
     future::{Ready, Future, IntoFuture, Pending, PollFn, },
     io::{Error as IoError, ErrorKind as IoErrorKind, IntoInnerError as IoIntoInnerError},
-    backtrace::{Backtrace, BacktraceStatus},
     char::{ParseCharError, CharTryFromError, TryFromCharError},
     cell::{BorrowError, BorrowMutError, Cell, LazyCell, RefCell, OnceCell},
     iter::{Filter, Inspect, IntoIterator, Iterator, Empty, Scan, Peekable},
@@ -66,9 +65,9 @@ pub trait ErrorTrait: StdError + Sized {
     fn cause(&self) -> Option<&dyn StdError>;
 }
 
-#[repr(u16)]
-#[doc(hidden)]
-#[derive(Debug, Default, Deserialize, Serialize, EnumString)]
+#[repr(usize)]
+#[derive(Display, EnumIs, AsRefStr, IntoStaticStr, VariantNames, Debug)]
+#[strum(serialize_all = "snake_case")]
 pub(crate) enum AppError
 {
     Pest(PestError<PestErrorVariant<String>>),
@@ -79,30 +78,16 @@ pub(crate) enum AppError
     TimeoutTransfer(Either<SendTimeoutError<String>, RecvTimeoutError>),
     Parse(ParsingError) = 0x0007,
     Layout(LayoutError) = 0x0008,
-    #[default]
     Other = 0x0009,
 }
 
-#[repr(u16)]
-#[doc(hidden)]
-#[derive(Default, Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Hash, EnumString)]
-pub(crate) enum FormatError {
-    Serialize(dyn SerdeSerializeError),
-    Deserialize(dyn SerdeDeserializeError),
-    Fmt(FmtError),
-    #[default]
-    Other,
-}
-
-#[repr(u16)]
-#[doc(hidden)]
-#[derive(Debug, Default, Serialize, Deserialize)]
-pub(crate) enum ParsingError
-{
+#[repr(usize)]
+#[derive(Display, Debug, EnumIs, AsRefStr, IntoStaticStr, VariantNames)]
+#[strum(serialize_all = "snake_case")]
+pub(crate) enum ParsingError {
     Uuid(uuid::Error),
     Bool(ParseBoolError),
     Char(ParseCharError),
-    Float(ParseFloatError),
     Int(ParseIntError),
     Utf8(Utf8Error),
     Str(ParseError),
@@ -111,7 +96,7 @@ pub(crate) enum ParsingError
     CharTryFrom(CharTryFromError),
     CharTryFromIntError(IntErrorKind),
     IntoString(IntoStringError),
-
+    TryFromSlice(TryFromSliceError),
     TryFromInt(TryFromIntError),
     TryFromFloat(ParseFloatError),
     TryFromFloatSecs(TryFromFloatSecsError),
@@ -120,119 +105,88 @@ pub(crate) enum ParsingError
     DecodeUtf16(DecodeUtf16Error),
     FromUtf16(FromUtf16Error),
     FromUtf8(FromUtf8Error),
-    Msg(dyn StdError),
-    #[default]
-    Other,
+    Other = 0x020 << 0x010,
 }
-impl From<ParsingError> for AppError {
+impl<'e> From<ParsingError> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: ParsingError) -> Self {
         AppError::Parse(e)
     }
 }
-impl From<FmtError> for AppError {
+impl<'e> From<FmtError> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: FmtError) -> Self {
-        AppError::Fmt(e)
+        AppError::Fmt(e.into())
     }
 }
-impl From<PestError<PestErrorVariant<String>>> for AppError {
+impl<'e> From<PestError<PestErrorVariant<String>>> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: PestError<PestErrorVariant<String>>) -> Self {
         AppError::Pest(e)
     }
 }
-impl From<IoError> for AppError {
+impl<'e> From<IoError> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: IoError) -> Self {
-        AppError::Io(Box::new(e))
+        AppError::Io(e.into())
     }
 }
-impl From<SystemTimeError> for AppError {
+impl<'e> From<SystemTimeError> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: SystemTimeError) -> Self {
         AppError::Time(e)
     }
 }
-impl From<LayoutError> for AppError {
+impl<'e> From<LayoutError> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: LayoutError) -> Self {
         AppError::Layout(e)
     }
 }
-impl From<Either<SendError<String>, RecvError>> for AppError {
+impl<'e> From<Either<SendError<String>, RecvError>> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: Either<SendError<String>, RecvError>) -> Self {
         AppError::Transfer(e)
     }
 }
-impl From<Either<SendTimeoutError<String>, RecvTimeoutError>> for AppError {
+impl<'e> From<Either<SendTimeoutError<String>, RecvTimeoutError>> for AppError {
     #[inline(always)]
     #[must_use]
     fn from(e: Either<SendTimeoutError<String>, RecvTimeoutError>) -> Self {
         AppError::TimeoutTransfer(e)
     }
 }
-impl Display for FormatError {
-    #[inline(always)]
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "FormatError")
-    }
-}
-impl Display for AppError {
-    #[inline(always)]
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "AppError")
-    }
-}
 
-impl Display for ParsingError {
-    #[inline(always)]
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "ParserError")
-    }
-}
-
-impl StdError for FormatError {
-    #[inline(always)]
-    fn source(&self) -> Option<&(dyn StdError + 'static)> {
-        None
-    }
-    #[inline(always)]
-    fn description(&self) -> &str {
-        ""
-    }
-    #[inline(always)]
-    fn cause(&self) -> Option<&dyn StdError> {
-        None
-    }
-}
 impl StdError for ParsingError {
-    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+    #[inline(always)]
+    fn source(&self) -> Option<&'static (dyn StdError + 'static)> {
         None
     }
+    #[inline(always)]
     fn description(&self) -> &str {
         ""
     }
-    fn cause(&self) -> Option<&dyn StdError> {
+    #[inline(always)]
+    fn cause(&self) -> Option<&'static dyn StdError> {
         None
     }
 }
-impl StdError for AppError {
-    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+
+impl<'e> StdError for AppError {
+    fn source(&self) -> Option<&'static (dyn StdError + 'static)> {
         None
     }
     fn description(&self) -> &str {
         ""
     }
-    fn cause(&self) -> Option<&dyn StdError> {
+    fn cause(&self) -> Option<&'static dyn StdError> {
         None
     }
 }

@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::borrow::{Borrow, Cow};
 use std::fmt::{Formatter,Display};
 use std::ops::{Deref, DerefMut, Index, Sub};
 use std::str::FromStr;
@@ -49,42 +49,72 @@ pub(crate) struct Span
 	pub start: SpanIndex,
 	pub end: SpanIndex,
 }
+impl Display for SpanIndex {
+	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", &self.0)
+	}
+
+}
 impl<'span> Display for Span {
 	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}:{}", &self.start, &self.end)
 	}
 }
 
-impl<'span> Index<SpanIndex> for Tokenizer<'span> {
-	type Output = Span;
+// impl<'span> Index<SpanIndex> for Tokenizer<'span> {
+// 	type Output = Span;
+//
+// 	fn index(&self, index: SpanIndex) -> &Self::Output {
+// 		self[index.borrow().load(Ordering::Relaxed)]
+// 	}
+// }
+// impl<'span> Index<SpanIndex> for Cow<'span, str> {
+// 	type Output = Span;
+//
+// 	fn index(&self, index: SpanIndex) -> &Self::Output {
+// 		self[&index.borrow().load(Ordering::Relaxed)]
+// 	}
+// }
 
-	fn index(&self, index: SpanIndex) -> &Self::Output {
-		self[index.borrow().load(Ordering::Relaxed)]
+// impl<'span> Index<SpanIndex> for Compiler<'span> {
+// 	type Output = Span;
+//
+	// fn index(&self, index: SpanIndex) -> &Self::Output {
+	// 	self[index.borrow().load(Ordering::Relaxed)]
+	// }
+// }
+
+// impl Borrow<AtomicUsize> for SpanIndex {
+// 	fn borrow(&self) -> &AtomicUsize {
+// 		 let a: AtomicUsize = self.0.into();
+// 		a
+// 	}
+// }
+impl Borrow<SpanIndex> for Span {
+	fn borrow(&self) -> &SpanIndex {
+		&self.start
 	}
 }
-impl<'span> Index<SpanIndex> for Cow<'span, str> {
-	type Output = Span;
-
-	fn index(&self, index: SpanIndex) -> &Self::Output {
-		self[index.borrow().load(Ordering::Relaxed)]
+impl From<SpanIndex> for usize {
+	#[inline(always)]
+	fn from(index: SpanIndex) -> Self {
+		index.0
 	}
 }
-
-impl<'span> Index<SpanIndex> for Compiler<'span> {
-	type Output = Span;
-
-	fn index(&self, index: SpanIndex) -> &Self::Output {
-		self[index.borrow().load(Ordering::Relaxed)]
+impl From<SpanIndex> for Span {
+	#[inline(always)]
+	fn from(index: SpanIndex) -> Self {
+		Span { start: index.clone(), end: index.into() }
 	}
 }
-
 impl Span {
 
-	#[inline(always)]
-	pub(crate) const fn length(&self) -> usize {
-		self.end.sub(&self.start)
-	}
-
+	// #[inline(always)]
+	// pub(crate) const fn length(&self) -> usize {
+	// 	let a = self.start.deref();
+	// 	self.end.kksub(*a)
+	// }
+	//
 	pub(crate) fn new(start: usize, end: usize) -> Self {
 		Span { start: start.into(), end: end.into() }
 	}
@@ -95,10 +125,10 @@ impl Span {
 	pub fn set_start(&mut self, start: usize) -> () {
 		self.start = start.into();
 	}
-
-	#[inline(always)]
-	pub(crate) const fn pos(self) -> (usize, usize) {
-		(self.start.into(), self.end.into())
-	}
+	//
+	// #[inline(always)]
+	// pub(crate) const fn pos(self) -> (usize, usize) {
+	// 	(self.start, self.end.into())
+	// }
 
 }

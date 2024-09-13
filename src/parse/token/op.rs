@@ -8,7 +8,7 @@ use crate::parse::token::keyword::{Keyword};
 
 #[repr(usize)]
 #[non_exhaustive]
-#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, EnumTryAs, EnumProperty, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantNames, Serialize, Deserialize, Display, EnumString, EnumIter, EnumTryAs, EnumProperty, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, )]
 #[strum(serialize_all = "snake_case")]
 pub(crate) enum Op {
 	#[strum(serialize = "keyword")]
@@ -23,7 +23,7 @@ pub(crate) enum Op {
 	Other,
 }
 #[repr(usize)]
-#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone,)]
 #[strum(serialize_all = "snake_case")]
 #[allow(clippy::default_trait_access)]
 pub(crate) enum OpPrefix {
@@ -31,14 +31,14 @@ pub(crate) enum OpPrefix {
 	#[strum(serialize = "keyword")]
 	Pipe,
 	#[strum(serialize = "&")]
-	Ref = 0x00000000D << 13,
+	Ref,
 	#[strum(serialize = "*")]
-	Ptr = 0x00000000D << 13,
+	Ptr,
 	#[strum(serialize = "not")]
-	Not = 0x00000000D << 13,
+	Not,
 }
 #[repr(usize)]
-#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, )]
 #[strum(serialize_all = "snake_case")]
 pub(crate) enum OpAssign {
 	#[default]
@@ -65,7 +65,7 @@ pub(crate) enum OpAssign {
 }
 
 #[repr(usize)]
-#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone)]
 #[strum(serialize_all = "snake_case")]
 pub(crate) enum OpBlock {
 	#[default]
@@ -88,7 +88,7 @@ pub(crate) enum OpBlock {
 }
 
 #[repr(usize)]
-#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, )]
 #[strum(serialize_all = "snake_case")]
 pub(crate) enum OpLogic {
 	#[default]
@@ -100,139 +100,141 @@ pub(crate) enum OpLogic {
 	Xor = 0x000000006 << 8,
 	#[strum(serialize = "eq")]
 	Eq = 0x000000007 << 7,
+	#[strum(serialize = "eq")]
+	Not = 0x000000007 << 8,
 }
 #[repr(usize)]
-#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone)]
 #[strum(serialize_all = "snake_case")]
 pub(crate) enum OpCompare {
 	#[default]
 	#[strum(serialize = "==")]
-	Eq = 0x000000008 << 8,
+	Eq,
 	#[strum(serialize = "!=")]
-	Neq = 0x000000008 << 8,
+	Neq,
 	#[strum(serialize = ">")]
-	Gt = 0x000000009 << 9,
+	Gt,
 	#[strum(serialize = "<")]
-	Lt = 0x00000000A << 10,
+	Lt,
 	#[strum(serialize = ">=")]
-	Gte = 0x00000000B << 11,
+	Gte,
 	#[strum(serialize = "<=")]
-	Lte = 0x00000000C << 12,
+	Lte,
 	#[strum(serialize = "===")]
-	Is = 0x000000004 << 14,
+	Is,
 	#[strum(serialize = "!")]
-	Not = 0x000000004 << 15,
+	Not,
 }
 #[repr(usize)]
-#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable, Serialize, Deserialize, Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(IntoStaticStr, AsRefStr, FromRepr, VariantArray, VariantNames, EnumTable,Display, EnumString, EnumIter, Default, Copy, Debug, Hash, PartialOrd, Ord, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[strum(serialize_all = "snake_case")]
 pub(crate) enum OpMath {
 	#[default]
 	#[strum(serialize = "+")]
-	Add = 0x000000001 << 0,
+	Add,
 	#[strum(serialize = "-")]
-	Sub = 0x000000002 << 1,
+	Sub,
 	#[strum(serialize = "/")]
-	Div = 0x000000003 << 2,
+	Div,
 	#[strum(serialize = "*")]
-	Mul = 0x000000004 << 3,
+	Mul,
 	#[strum(serialize = "%")]
-	Mod = 0x000000004 << 4,
+	Mod,
 	#[strum(serialize = "floor")]
-	Floor = 0x000000004 << 5,
+	Floor,
 	#[strum(serialize = "floor")]
-	Ceil = 0x000000004 << 6,
+	Ceil,
 	#[strum(serialize = "floor")]
-	Round = 0x000000004 << 7,
+	Round,
 }
-impl FromStr for Op {
-	type Err = ParseError;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"+" => Ok(Op::Math(OpMath::Add)),
-			"-" => Ok(Op::Math(OpMath::Sub)),
-			"/" => Ok(Op::Math(OpMath::Div)),
-			"*" => Ok(Op::Math(OpMath::Mul)),
-			"%" => Ok(Op::Math(OpMath::Mod)),
-			_ => Err(ParseError::VariantNotFound),
-		}
-	}
-}
-impl FromStr for OpPrefix {
-	type Err = ParseError;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"|" => Ok(OpPrefix::Pipe),
-			"&" => Ok(OpPrefix::Ref),
-			"*" => Ok(OpPrefix::Ptr),
-			"not" => Ok(OpPrefix::Not),
-			_ => Err(ParseError::VariantNotFound),
-		}
-	}
-}
-impl FromStr for OpAssign {
-	type Err = ParseError;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"=" => Ok(OpAssign::Assign),
-			"+=" => Ok(OpAssign::AddAssign),
-			"-=" => Ok(OpAssign::SubAssign),
-			"/=" => Ok(OpAssign::DivAssign),
-			"*=" => Ok(OpAssign::MulAssign),
-			"%" => Ok(OpAssign::ModAssign),
-			"&=" => Ok(OpAssign::AndAssign),
-			"|=" => Ok(OpAssign::OrAssign),
-			"==" => Ok(OpAssign::EqAssign),
-			"!=" => Ok(OpAssign::NeqAssign),
-			_ => Err(ParseError::VariantNotFound),
-		}
-	}
-}
-impl FromStr for OpLogic {
-	type Err = ParseError;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"&&" => Ok(OpLogic::And),
-			"||" => Ok(OpLogic::Or),
-			"^" => Ok(OpLogic::Xor),
-			"==" => Ok(OpLogic::Eq),
-			"!" => Ok(OpLogic::Not),
-			_ => Err(ParseError::VariantNotFound),
-		}
-	}
-}
-impl FromStr for OpCompare {
-	type Err = ParseError;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"==" => Ok(OpCompare::Eq),
-			"!=" => Ok(OpCompare::Neq),
-			">" => Ok(OpCompare::Gt),
-			"<" => Ok(OpCompare::Lt),
-			">=" => Ok(OpCompare::Gte),
-			"<=" => Ok(OpCompare::Lte),
-			"is" => Ok(OpCompare::Is),
-			"not" => Ok(OpCompare::Not),
-			_ => Err(ParseError::VariantNotFound),
-		}
-	}
-}
-impl FromStr for OpMath {
-	type Err = ParseError;
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"+" => Ok(OpMath::Add),
-			"-" => Ok(OpMath::Sub),
-			"/" => Ok(OpMath::Div),
-			"*" => Ok(OpMath::Mul),
-			"%" => Ok(OpMath::Mod),
-			"floor" => Ok(OpMath::Floor),
-			"ceil" => Ok(OpMath::Ceil),
-			"round" => Ok(OpMath::Round),
-			_ => Err(ParseError::VariantNotFound),
-		}
-	}
-}
+// impl FromStr for Op {
+// 	type Err = ParseError;
+// 	fn from_str(s: &str) -> Result<Self, Self::Err> {
+// 		match s {
+// 			"+" => Ok(Op::Math(OpMath::Add)),
+// 			"-" => Ok(Op::Math(OpMath::Sub)),
+// 			"/" => Ok(Op::Math(OpMath::Div)),
+// 			"*" => Ok(Op::Math(OpMath::Mul)),
+// 			"%" => Ok(Op::Math(OpMath::Mod)),
+// 			_ => Err(ParseError::VariantNotFound),
+// 		}
+// 	}
+// }
+// impl FromStr for OpPrefix {
+// 	type Err = ParseError;
+// 	fn from_str(s: &str) -> Result<Self, Self::Err> {
+// 		match s {
+// 			"|" => Ok(OpPrefix::Pipe),
+// 			"&" => Ok(OpPrefix::Ref),
+// 			"*" => Ok(OpPrefix::Ptr),
+// 			"not" => Ok(OpPrefix::Not),
+// 			_ => Err(ParseError::VariantNotFound),
+// 		}
+// 	}
+// }
+// impl FromStr for OpAssign {
+// 	type Err = ParseError;
+// 	fn from_str(s: &str) -> Result<Self, Self::Err> {
+// 		match s {
+// 			"=" => Ok(OpAssign::Assign),
+// 			"+=" => Ok(OpAssign::AddAssign),
+// 			"-=" => Ok(OpAssign::SubAssign),
+// 			"/=" => Ok(OpAssign::DivAssign),
+// 			"*=" => Ok(OpAssign::MulAssign),
+// 			"%" => Ok(OpAssign::ModAssign),
+// 			"&=" => Ok(OpAssign::AndAssign),
+// 			"|=" => Ok(OpAssign::OrAssign),
+// 			"==" => Ok(OpAssign::EqAssign),
+// 			"!=" => Ok(OpAssign::NeqAssign),
+// 			_ => Err(ParseError::VariantNotFound),
+// 		}
+// 	}
+// }
+// impl FromStr for OpLogic {
+// 	type Err = ParseError;
+// 	fn from_str(s: &str) -> Result<Self, Self::Err> {
+// 		match s {
+// 			"&&" => Ok(OpLogic::And),
+// 			"||" => Ok(OpLogic::Or),
+// 			"^" => Ok(OpLogic::Xor),
+// 			"==" => Ok(OpLogic::Eq),
+// 			"!" => Ok(OpLogic::Not),
+// 			_ => Err(ParseError::VariantNotFound),
+// 		}
+// 	}
+// }
+// impl FromStr for OpCompare {
+// 	type Err = ParseError;
+// 	fn from_str(s: &str) -> Result<Self, Self::Err> {
+// 		match s {
+// 			"==" => Ok(OpCompare::Eq),
+// 			"!=" => Ok(OpCompare::Neq),
+// 			">" => Ok(OpCompare::Gt),
+// 			"<" => Ok(OpCompare::Lt),
+// 			">=" => Ok(OpCompare::Gte),
+// 			"<=" => Ok(OpCompare::Lte),
+// 			"is" => Ok(OpCompare::Is),
+// 			"not" => Ok(OpCompare::Not),
+// 			_ => Err(ParseError::VariantNotFound),
+// 		}
+// 	}
+// }
+// impl FromStr for OpMath {
+// 	type Err = ParseError;
+// 	fn from_str(s: &str) -> Result<Self, Self::Err> {
+// 		match s {
+// 			"+" => Ok(OpMath::Add),
+// 			"-" => Ok(OpMath::Sub),
+// 			"/" => Ok(OpMath::Div),
+// 			"*" => Ok(OpMath::Mul),
+// 			"%" => Ok(OpMath::Mod),
+// 			"floor" => Ok(OpMath::Floor),
+// 			"ceil" => Ok(OpMath::Ceil),
+// 			"round" => Ok(OpMath::Round),
+// 			_ => Err(ParseError::VariantNotFound),
+// 		}
+// 	}
+// }
 
 impl Op {
 	fn new() -> Self {
@@ -259,11 +261,6 @@ impl From<OpPrefix> for Op {
 		Op::Prefix(op)
 	}
 }
-impl From<OpAssign> for Op {
-	fn from(op: OpAssign) -> Self {
-		Op::Assign(op)
-	}
-}
 impl From<OpMath> for Op {
 	fn from(op: OpMath) -> Self {
 		Op::Math(op)
@@ -277,12 +274,6 @@ impl From<OpBlock> for Op {
 impl From<Keyword> for Op {
 	fn from(op: Keyword) -> Self {
 		Op::Keyword(op)
-	}
-}
-
-impl From<Keyword> for Op {
-	fn from(op: Keyword) -> Self {
-		Op::Keyword(op.into())
 	}
 }
 
@@ -317,8 +308,5 @@ impl ParallelString for Op {
 	}
 }
 impl Op {
-	fn df() -> Self {
-		Self::from_repr(0).into()
-	}
 
 }

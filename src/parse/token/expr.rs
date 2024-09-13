@@ -1,9 +1,7 @@
-#[repr(usize)]
 pub(crate) enum Expr {
 
 }
-#[repr(usize)]
-#[doc(hid)]
+#[doc(hidden)]
 pub(crate) enum ExprRef {
 
 }

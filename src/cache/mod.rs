@@ -3,17 +3,18 @@ use std::{
 	num::NonZeroUsize,
 	hash::Hash
 };
+use std::collections::HashSet;
 use crossbeam_utils::CachePadded;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
-pub(crate) struct Cache<'cache, K = usize, V = HashMap<String, String>>
-where
-	Self: 'cache + Sized,
-	K: Hash + Eq + Clone + Serialize + Deserialize,
-	V: Hash + Eq + Clone + Serialize + Deserialize,
-{
-	lru: lru::LruCache<K, V>,
-	cache: CachePadded<V>,
-	lasts: tokio::time::Duration,
-}
+// #[derive(Debug)]
+// pub(crate) struct Cache<'cache, K = usize, V = HashSet<String>>
+// // where
+// 	// Self: Sized,
+// 	// K: Eq + Clone + Serialize + Deserialize<'cache> + Hash + 'cache,
+// 	// V: Eq + Clone + Serialize + Deserialize<'cache> + 'cache,
+// {
+// 	lru: lru::LruCache<K, V>,
+// 	cache: CachePadded<V>,
+// 	lasts: tokio::time::Duration,
+// }

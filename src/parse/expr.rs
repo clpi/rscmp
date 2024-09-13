@@ -7,7 +7,7 @@ use tracing::field::Field;
 
 #[repr(u16)]
 #[derive(Debug, Clone, Serialize, Deserialize, EnumString, Default, PartialEq, Eq, Hash, EnumIter)]
-pub(crate) enum Expr<'expr> {
+pub(crate) enum Expr {
 	#[default]
 	Literal = 0x0001 << 0x0001,
 	Ident = 0x0002 << 0x0002,
