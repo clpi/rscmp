@@ -9,7 +9,6 @@ use pyo3::ToPyObject;
 use rayon::str::ParallelString;
 use serde::{Deserialize, Serialize};
 use crate::parse::compile::Compiler;
-use crate::parse::grammar::Rule::value;
 use crate::parse::token::{Token, TokenKind, Tokenizer};
 
 #[derive(Serialize, Deserialize, Default, Clone, Hash, PartialEq, Eq, Debug, Ord, PartialOrd)]

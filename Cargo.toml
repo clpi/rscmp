@@ -1,10 +1,20 @@
-[package]
-name = "l"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+    "./lib/lng-ast",
+    "./lib/lng-parse"
+]
 
-[dependencies]
-anyhow = "1.0.87"
+[workspace.metadata]
+name = "lng"
+repository = "https://github.com/your-username/lng"
+description = "A language parsing and processing tool"
+license = "MIT OR Apache-2.0"
+keywords = ["language", "parsing", "compiler"]
+categories = ["compilers", "parsing"]
+
+
+[workspace.dependencies]
+anyhow = "1.0.88"
 async-trait = "0.1.82"
 crossbeam = { version = "0.8.4", features = ["crossbeam-channel", "crossbeam-deque", "crossbeam-epoch", "crossbeam-queue", "nightly"] }
 crossbeam-utils = { version = "0.8.20", features = ["nightly"] }
@@ -35,3 +45,73 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter", "once_cell", "parking_lot", "serde", "tracing", "tracing-serde", "valuable-serde"] }
 typed-arena = "2.0.2"
 uuid = { version = "1.10.0", features = ["arbitrary", "atomic", "serde", "v4"] }
+
+lng-parse = { path = "./lib/lng-parse"}
+lng-ast = { path = "./lib/lng-ast"}
+
+[package]
+name = "lng"
+version = "0.1.0"
+edition = "2021"
+default-run = "lng"
+
+[dependencies]
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+crossbeam = { workspace = true }
+crossbeam-utils = { workspace = true }
+either = { workspace = true }
+from-pest = { workspace = true }
+indexmap = { workspace = true }
+itertools = { workspace = true }
+lru = { workspace = true }
+# memchr = { workspace = true }
+once_cell = { workspace = true }
+parking_lot = { workspace = true }
+pest = { workspace = true }
+pest-ast = { workspace = true }
+pest_debugger = { workspace = true }
+pest_derive = { workspace = true }
+pest_meta = { workspace = true }
+pest_vm = { workspace = true }
+petgraph = { workspace = true }
+pyo3 = { workspace = true }
+rayon = { workspace = true }
+serde = { workspace = true }
+smallvec = { workspace = true }
+sourcemap = { workspace = true }
+strum = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+typed-arena = { workspace = true }
+uuid = { workspace = true }
+lng-parse = { workspace = true }
+lng-ast = { workspace = true }
+
+[dev]
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+panic = 'unwind'
+incremental = true
+codegen-units = 256
+rpath = false
+
+[release]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = true
+panic = 'abort'
+incremental = false
+codegen-units = 16
+rpath = false
+
+[[bin]]
+name = "lng"
+path = "src/bin/main.rs"

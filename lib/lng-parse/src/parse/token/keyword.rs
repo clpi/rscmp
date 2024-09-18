@@ -88,7 +88,7 @@ impl ParallelString for Keyword {
 }
 impl From<Keyword> for String {
 		#[inline]
-	fn from(k: Keyword) -> Self {
+	fn from(_k: Keyword) -> Self {
 		String::from("As")
 	}
 }

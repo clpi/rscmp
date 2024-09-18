@@ -1,0 +1,8 @@
+[package]
+name = "lng-ast"
+
+[lib]
+name = "lng_ast"
+path = "src/lib.rs"
+
+[dependencies]

@@ -1,0 +1,46 @@
+[package]
+name = "lng-parse"
+version = "0.1.0"
+edition = "2021"
+default-run = "lng_parse_main"
+
+[lib]
+name = "lng_parse"
+path = "src/lib.rs"
+
+[[bin]]
+name = "lng_parse_main"
+path = "src/bin/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+crossbeam = { workspace = true }
+crossbeam-utils = { workspace = true }
+either = { workspace = true }
+from-pest = { workspace = true }
+indexmap = { workspace = true }
+itertools = { workspace = true }
+lru = { workspace = true }
+# memchr = { workspace = true }
+once_cell = { workspace = true }
+parking_lot = { workspace = true }
+pest = { workspace = true }
+pest-ast = { workspace = true }
+pest_debugger = { workspace = true }
+pest_derive = { workspace = true }
+pest_meta = { workspace = true }
+pest_vm = { workspace = true }
+petgraph = { workspace = true }
+pyo3 = { workspace = true }
+rayon = { workspace = true }
+serde = { workspace = true }
+smallvec = { workspace = true }
+sourcemap = { workspace = true }
+strum = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+typed-arena = { workspace = true }
+uuid = { workspace = true }

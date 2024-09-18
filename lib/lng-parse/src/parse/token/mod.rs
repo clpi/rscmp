@@ -26,7 +26,6 @@ pub  mod span;
 pub  mod op;
 pub  mod keyword;
 pub (crate) mod types;
-pub(crate) mod control;
 
 #[repr(usize)]
 #[derive(FromRepr, VariantNames, EnumTryAs, AsRefStr, IntoStaticStr,  EnumIs, EnumIter, Serialize, Deserialize, EnumString, Default, Display, Clone, Hash, PartialEq, Eq, Debug, PartialOrd)]
@@ -360,7 +359,6 @@ where
     Self: 'op + Sized,
 {
     type Text: Into<String>;
-    #[inline(always)]
     fn is_op(&'op self) -> AtomicBool;
     // #[inline(always)]
     // fn name(&'op self) -> Cow<'op, str> {
