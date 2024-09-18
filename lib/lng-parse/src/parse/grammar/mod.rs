@@ -1,11 +1,10 @@
 extern crate pest_derive;
+use pest::error::Error;
 use pest::{iterators::Pairs, RuleType, state, ParseResult, ParserState, Span, Position, Parser};
 use pest_derive::Parser;
+use std::borrow::Cow;
 // use pest_vm::Vm;
 // use pest_meta::parser::{parse, ParserExpr};
-use std::{
-    error::Error,
-};
 use crossbeam::epoch::Pointable;
 // use pest::iterators::Pairs;
 use strum::Display;
@@ -15,32 +14,36 @@ use crate::parse::compile::Compiler;
 use crate::parse::state;
 use crate::parse::token::Tokenizer;
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[grammar = "src/parse/grammar/grammar.pest"]
-pub struct Grammar {
+pub struct Grammar<'g> {
+    pub src: &'g str,   
+}
+impl<'g> Default for Grammar<'g> {
+    fn default() -> Self {
+        Self {
+            src: "",
+        }
+    }
 }
 
-impl Grammar {
-    pub fn new() -> Self {
-        let s = Self {
-        };
-        s
+impl<'g> Grammar<'g> {
+
+    #[inline(always)]
+    pub const fn new(src: &'g str) -> Self {
+        Self { src }
     }
 
-    pub fn parse_rule(rule: Rule, src: &'static str) -> ParseResult<Pairs<Rule>> {
-        let mut pairs = <Self as Parser<Rule>>::parse(rule, src);
-        let mut ps = pairs.unwrap();
-        while let Some(pair) = &mut ps.next() {
-            println!("{:#?} {:?}", pair.as_rule(), pair.as_span());
-        }
-        Ok(ps.clone())
+    pub(crate) fn set_src(&mut self, src: &'g str) -> &Self {
+        self.src = src;
+        self
     }
-    pub fn parse_expr(src: &str) -> ParseResult<Pairs<Rule>> {
-        let mut pairs = Self::parse(Rule::expr, src);
-        let mut ps = pairs.unwrap_or_else(|e| panic!("{}", e));
-        while let Some(pair) = &mut ps.next() {
-            println!("{:#?} {:?}", pair.as_rule(), pair.as_span());
-        }
-        Ok(ps.clone())
+
+    pub fn parse_full(&self) -> Result<Pairs<'_, Rule>, Error<Rule>> {
+        Self::parse(Rule::calculation, self.src)
+    }
+
+    pub fn parse_expr(&self) -> Result<Pairs<'_, Rule>, Error<Rule>> {
+        Self::parse(Rule::expr, self.src)
     }
 }

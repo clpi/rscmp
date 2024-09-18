@@ -1,17 +1,74 @@
-num = @{ int ~ ("." ~ ASCII_DIGIT*)? ~ (^"e" ~ int)? }
-int = { ("+" | "-")? ~ ASCII_DIGIT+ }
+newline = _{ "\n" | "\r\n" }
 
-operation = _{ add | subtract | multiply | divide | power }
+stmt = _{ expr }
+
+value = _{ array | num | string | character | bool | nil }
+  array = {
+    "[" ~ "]" |
+    "[" ~ value ~ ("," ~ value)* ~ "]"
+  }
+  bool = _{ true | false}
+    true = { "true" | "yes" }
+    false = { "false" | "no" }
+  nil = { "nil" | "null" }
+  num = _{ int | float | uint }
+    int = { ("+" | "-")? ~ ASCII_DIGIT+ }
+    float = { int ~ ("." ~ ASCII_DIGIT*)? ~ (^"e" ~ int)? }
+    uint = { ("+" | "-")? ~ ASCII_DIGIT+ }
+  string = { "\"" ~ ANY* ~ "\"" }
+  character = { "'" ~ ANY{1} ~ "'" }
+  raw = { "`" ~ ANY* ~ "`" }
+  identifier = { ('a'..'z' | 'A'..'Z' | "_")+ }
+
+
+op = _{ math | cmp | logic | assign | nop }
+  nop = _{ "nop" }
+  assign = _{ eadd | esub | emul | ediv | epow | erem | eeq | edef | eque }
+    eeq  = { "=" } // Assignment
+    edef = { ":=" } // Assignment
+    eque = { "?=" } // Assignment
+    eadd = { "+=" } // Addition
+    esub = { "-=" } // Subtraction
+    emul = { "*=" } // Multiplication
+    ediv = { "/=" } // Division
+    epow = { "^=" } // Exponentiation
+    erem = { "%=" } // Mod
+
+  math     = _{ add | sub | mul | div | pow | rem }
     add      = { "+" }
-    subtract = { "-" }
-    multiply = { "*" }
-    divide   = { "/" }
-    power    = { "^" }
+    sub      = { "-" }
+    mul      = { "*" }
+    div      = { "/" }
+    pow      = { "^" }
+    rem      = { "%" }
 
-expr = { term ~ (operation ~ term)* }
-term = _{ num | "(" ~ expr ~ ")" }
+  cmp      = _{ cmplt | cmple | cmpgt | cmpge | cmpeq | cmpne | cmpeq3 | cmpne3 | cmpdm }
+    cmpdm   = { "<>" }
+    cmplt   = { "<" }
+    cmple   = { "<=" }
+    cmpgt   = { ">" }
+    cmpge   = { ">=" }
+    cmpeq   = { "==" }
+    cmpne   = { "!=" }
+    cmpeq3  = { "===" | "is"}
+    cmpne3  = { "!==" | "is not"}
+  
+  logic    = _{ xor | and | or | not | exi }
+    and     = { "&&" | "and" }
+    or      = { "||" | "or" }
+    xor     = { "^^" | "xor" }
+    not     = { "!" | "not" }
+    exi     = { "?" | "exists" }
+    
+    
 
-calculation = _{ SOI ~ expr ~ EOI }
+
+expr = { term ~ (op ~ term)*}
+term = _{ value | "(" ~ expr ~ ")" }
+block = { "{" ~ expr* ~ "}" }
+ln_comment = { "//" ~ (!"\n" ~ ANY)* }
+
+calculation = _{ SOI ~ expr* ~ EOI }
 
 WHITESPACE = _{ " " | "\t" }
 // WHITESPACE   =  _{ " " | "\t" | NEWLINE }

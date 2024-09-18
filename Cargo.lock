@@ -765,8 +765,10 @@ dependencies = [
  "from-pest",
  "indexmap",
  "itertools 0.13.0",
+ "lazy_static",
  "lng-ast",
  "lng-parse",
+ "lng-vm",
  "lru",
  "once_cell",
  "parking_lot",
@@ -829,6 +831,16 @@ dependencies = [
  "tracing-subscriber",
  "typed-arena",
  "uuid",
+]
+
+[[package]]
+name = "lng-vm"
+version = "0.1.0"
+dependencies = [
+ "pest",
+ "pest-ast",
+ "pest_derive",
+ "pest_vm",
 ]
 
 [[package]]

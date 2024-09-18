@@ -1,0 +1,19 @@
+[package]
+name = "lng-vm"
+version = "0.1.0"
+edition = "2021"
+default-run = "lng_vm"
+
+[[bin]]
+name = "lng_vm"
+path = "src/bin/main.rs"
+
+[lib]
+name = "lng_vm_lib"
+path = "src/lib.rs"
+
+[dependencies]
+pest_vm = { workspace = true }
+pest-ast = { workspace = true }
+pest = { workspace = true }
+pest_derive.workspace = true

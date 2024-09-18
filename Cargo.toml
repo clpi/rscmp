@@ -2,7 +2,7 @@
 members = [
     "./lib/lng-ast",
     "./lib/lng-parse"
-]
+, "lib/lng-vm"]
 
 [workspace.metadata]
 name = "lng"
@@ -48,6 +48,7 @@ uuid = { version = "1.10.0", features = ["arbitrary", "atomic", "serde", "v4"] }
 
 lng-parse = { path = "./lib/lng-parse"}
 lng-ast = { path = "./lib/lng-ast"}
+lng-vm = { path = "./lib/lng-vm"}
 
 [package]
 name = "lng"
@@ -89,6 +90,8 @@ typed-arena = { workspace = true }
 uuid = { workspace = true }
 lng-parse = { workspace = true }
 lng-ast = { workspace = true }
+lng-vm = { workspace = true }
+lazy_static = "1.5.0"
 
 [dev]
 opt-level = 0
