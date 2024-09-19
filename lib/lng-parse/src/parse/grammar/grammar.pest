@@ -21,8 +21,34 @@ value = _{ array | num | string | character | bool | nil }
   identifier = { ('a'..'z' | 'A'..'Z' | "_")+ }
 
 
-op = _{ math | cmp | logic | assign | nop }
+op = _{ op_inf | op_pre | op_pos | nop }
+  op_inf = _{ assign | math | cmp | logic | misc }
+  op_pre = _{ op_pre_dec | op_pre_dol | op_pre_ref | op_pre_inc | op_pre_pos | op_pre_neg | op_pre_not | op_pre_exi | op_pre_ptr | op_pre_pipe | op_pre_dot }
+    op_pre_dec = { "--" }
+    op_pre_inc = { "++" }
+    op_pre_pos = { "+" }
+    op_pre_neg = { "-" }
+    op_pre_not = { "!" | "not" }
+    op_pre_exi = { "?" | "exists" }
+    op_pre_ref = { "&" }
+    op_pre_ptr = { "*" }
+    op_pre_pipe = { "|" }
+    op_pre_dot = { "." }
+    op_pre_dol = { "$" }
+  op_pos = _{ op_pos_dec | op_pos_inc | op_pos_call | op_pos_index | op_pos_block | op_pos_fac | op_pos_query | op_pos_end }
+    op_pos_dec = { "--" }
+    op_pos_inc = { "++" }
+    op_pos_call = { "(" }
+    op_pos_index = { "[" }
+    op_pos_block = { ":" }
+    op_pos_fac = { "!" }
+    op_pos_query = { "?" }
+    op_pos_end = { ";" }
   nop = _{ "nop" }
+  misc = _{ range | access | dot }
+    range = { "..." }
+    access = { "::" }
+    dot = { "." }
   assign = _{ eadd | esub | emul | ediv | epow | erem | eeq | edef | eque }
     eeq  = { "=" } // Assignment
     edef = { ":=" } // Assignment

@@ -31,14 +31,112 @@ fn main() -> Result<(), pest::error::Error<Rule>> {
                 Value::Nil
             }
         )
-        // .map_postfix(|lhs: Value, op: Pair<Rule>| {
-        //     let lhs_value : Value= lhs;
-        //     let op_value: Op = parse_op(op);
-        //     match op_value {
-        //         Op::Nop => lhs_value,
-        //         _ => lhs_value,
-        //     }
-        // })
+        .map_postfix(|lhs: Value, op: Pair<Rule>| {
+            let lhs_value: Value = lhs;
+            match op.as_rule() {
+                Rule::op_pos_inc => {
+                    if let Value::Num(l) = lhs_value {
+                        if l.is_int() {
+                            return Value::Num(ValueNum::Int(l.try_as_int().unwrap_or_default() + 1));
+                        } else if l.is_float() {
+                            return Value::Num(ValueNum::Float(l.try_as_float().unwrap_or_default() + 1.0));
+                        } else {
+                            return Value::Num(ValueNum::Uint(l.try_as_uint().unwrap_or_default() + 1));
+                        }
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                Rule::op_pos_dec => {
+                    if let Value::Num(l) = lhs_value {
+                        if l.is_int() {
+                            return Value::Num(ValueNum::Int(l.try_as_int().unwrap_or_default() - 1));
+                        } else if l.is_float() {
+                            return Value::Num(ValueNum::Float(l.try_as_float().unwrap_or_default() - 1.0));
+                        } else {
+                            return Value::Num(ValueNum::Uint(l.try_as_uint().unwrap_or_default() - 1));
+                        }
+                    } else {
+                        lhs_value
+                    }
+                }
+                _ => return lhs_value,
+            }
+        })
+        .map_prefix(|op: Pair<Rule>, lhs: Value| {
+            let lhs_value: Value = lhs;
+            match op.as_rule() {
+                Rule::op_pre_dec => {
+                    if let Value::Num(l) = lhs_value {
+                        if l.is_int() {
+                            return Value::Num(ValueNum::Int(l.try_as_int().unwrap_or_default() - 1));
+                        } else if l.is_float() {
+                            return Value::Num(ValueNum::Float(l.try_as_float().unwrap_or_default() - 1.0));
+                        } else {
+                            return Value::Num(ValueNum::Uint(l.try_as_uint().unwrap_or_default() - 1));
+                        }
+                    } else {
+                        lhs_value
+                    }
+                }
+                Rule::op_pre_inc => {
+                    if let Value::Num(l) = lhs_value {
+                        if l.is_int() {
+                            return Value::Num(ValueNum::Int(l.try_as_int().unwrap_or_default() + 1));
+                        } else if l.is_float() {
+                            return Value::Num(ValueNum::Float(l.try_as_float().unwrap_or_default() + 1.0));
+                        } else {
+                            return Value::Num(ValueNum::Uint(l.try_as_uint().unwrap_or_default() + 1));
+                        }
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                Rule::op_pre_neg => {
+                    if let Value::Num(lhs) = lhs_value {
+                        return Value::Num(-lhs);
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                Rule::op_pre_not => {
+                    if let Value::Bool(lhs) = lhs_value {
+                        return Value::Bool(!lhs);
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                Rule::op_pre_ptr => {
+                    if let Value::Num(lhs) = lhs_value {
+                        return Value::Num(lhs);
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                Rule::op_pre_ref => {
+                    if let Value::Num(lhs) = lhs_value {
+                        return Value::Num(lhs);
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                Rule::op_pre_pipe => {
+                    if let Value::Num(lhs) = lhs_value {
+                        return Value::Num(lhs);
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                Rule::op_pre_dot => {
+                    if let Value::Num(lhs) = lhs_value {
+                        return Value::Num(lhs);
+                    } else {
+                        return lhs_value;
+                    }
+                }
+                _ => return lhs_value,
+            }
+        })
         .map_infix(|lhs: Value, op: Pair<Rule>, rhs: Value| {
             // let lhs_value : Value= parse_value(lhs);
             // let rhs_value: Value = parse_value(rhs);
@@ -590,11 +688,12 @@ pub fn parse_value(pair: Pair<Rule>) -> Value {
             // println!("value {:#?}\t", r);
         // println!("{:?}", pair);
         match pair.as_rule() {
-            Rule::num => Value::Num(parse_num(pair)),
+            Rule::num => parse_num(pair),
             Rule::bool => parse_bool(pair),
             Rule::nil => Value::Nil,
             Rule::string => parse_string(pair),
             Rule::character => parse_character(pair),
+            /// Quote // Code type?
             _ => Value::Nil,
     }
 }
@@ -620,21 +719,23 @@ pub fn parse_character(pair: Pair<Rule>) -> Value {
     return Value::Chr(pair.as_str().chars().next().unwrap());
 }
 
-pub fn parse_num(pair: Pair<Rule>) -> ValueNum {
+pub fn parse_num(pair: Pair<Rule>) -> Value {
     let re = match pair.as_rule() {
+        
         Rule::int => {
             println!("int {:#?}\t", pair.as_str());
-            ValueNum::Int(pair.as_str().parse().unwrap())
+            Value::Num(ValueNum::Int(pair.as_str().parse().unwrap()))
         }
         Rule::float => {
             println!("float {:#?}\t", pair.as_str());
-            ValueNum::Float(pair.as_str().parse().unwrap())
+            Value::Num(ValueNum::Float(pair.as_str().parse().unwrap()))
         }
         Rule::uint => {
             println!("uint {:#?}\t", pair.as_str());
-            ValueNum::Uint(pair.as_str().parse().unwrap())
+            Value::Num(ValueNum::Uint(pair.as_str().parse().unwrap()))
         }
-        _ => ValueNum::default(),
+        _ => Value::Num(ValueNum::default()),
+        /// Complex?
     };
     return re;
 }
