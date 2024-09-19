@@ -4,7 +4,7 @@ use std::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Neg, Not, Rem, Shl, Sub};
 use std::string::ParseError;
 use crossbeam::epoch::Pointable;
 use pest::pratt_parser::{Assoc, Op as POp, PrattParser, PrattParserMap};
-use strum::{AsRefStr, EnumIs, EnumIter, EnumString, EnumTryAs, IntoStaticStr, VariantArray, AsStaticRef, EnumCount};
+use strum::{AsRefStr, AsStaticRef, EnumCount, EnumDiscriminants, EnumIs, EnumIter, EnumMessage, EnumProperty, EnumString, EnumTryAs, FromRepr, IntoStaticStr, VariantArray, VariantNames};
 use std::num::{ParseFloatError, ParseIntError};
 use std::result;
 use std::str::FromStr;
@@ -144,7 +144,6 @@ fn main() -> Result<(), pest::error::Error<Rule>> {
             let lhs_value: Value = lhs;
             let op_value: Op = parse_op(op);
             match op_value {
-                Op::Nop => lhs_value,
                 Op::Return(v) => v,
                 Op::Assign(op) => {
                     match op {
@@ -152,6 +151,7 @@ fn main() -> Result<(), pest::error::Error<Rule>> {
                     }
        
                 },
+                Op::Nop => lhs_value,
                 Op::Math(op) => {
                     if let (Value::Num(lhs), Value::Num(rhs)) = (lhs_value.clone(), rhs_value.clone()) {
                         match op {
@@ -241,7 +241,9 @@ fn main() -> Result<(), pest::error::Error<Rule>> {
 }
 
 
-#[derive(Debug, EnumIs, Clone, EnumIter, EnumTryAs, AsRefStr, IntoStaticStr, Default, Serialize, Display, Deserialize)]
+#[repr(usize)]
+#[derive(Debug, EnumMessage, Default, EnumIs, AsRefStr, Clone, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum Expr {
     #[default]
     Nop,
@@ -266,7 +268,9 @@ pub enum Parse {
     #[default]
     EOI,
 }
-#[derive(PartialEq, Clone, PartialOrd, Debug, EnumIs, EnumIter, EnumTryAs, AsRefStr, IntoStaticStr, Default, Serialize, Display, Deserialize)]
+#[repr(u8)]
+#[derive(PartialEq, PartialOrd, Default, FromRepr, VariantNames, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum Value {
     Num(ValueNum),
     Bool(bool),
@@ -309,14 +313,17 @@ impl Not for Value {
 
     fn not(self) -> Self::Output {
         match self {
-            Value::Bool(b) => !b,
-            Value::Num(ValueNum::Int(i)) => i == 0,
-            Value::Num(ValueNum::Uint(u)) => u == 0,
-            Value::Num(ValueNum::Float(f)) => f == 0.0, 
-            Value::Str(s) => s.is_empty(),
-            Value::Chr(c) => c == '\0',
-            Value::Nil => true,
-            _ => false,
+            Value::Bool(b) => return !b,
+            Value::Num(n) => return match n {
+                ValueNum::Int(i) => return i == 0,
+                ValueNum::Uint(u) => return u == 0,
+                ValueNum::Float(f) => return f == 0.0, 
+                _ => return false,
+            },
+            Value::Str(s) => return s.is_empty(),
+            Value::Chr(c) => return c == '\0',
+            Value::Nil => return true,
+            _ => return false,
         }
     }
 }
@@ -481,11 +488,13 @@ impl Value {
     }
 }
 
-#[derive(PartialEq, Clone, PartialOrd, Debug, EnumIs, EnumIter, EnumTryAs, AsRefStr, IntoStaticStr, Serialize, Display, Deserialize)]
+#[repr(usize)]
+#[derive(PartialEq, PartialOrd, FromRepr, VariantNames, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum ValueNum {
-    Int(i64),
-    Float(f64),
-    Uint(u64),
+    Int(i64) = 0x96 << 0x00 | 0x00,
+    Float(f64) = 0x96 << 0x01 | 0x01,
+    Uint(u64) = 0x96 << 0x02 | 0x02,
 }
 impl From<Pair<'_, Rule>> for ValueNum {
     fn from(pair: Pair<'_, Rule>) -> Self {
@@ -526,7 +535,9 @@ impl ValueNum {
     }
 }
 
-#[derive(Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, Default, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[repr(usize)]
+#[derive(Default, FromRepr, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum Op {
     Assign(OpAssign),
     Math(OpMath),
@@ -537,7 +548,9 @@ pub enum Op {
     Nop,
 }
 
-#[derive(Default, Clone, Debug, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[repr(usize)]
+#[derive(EnumMessage, EnumDiscriminants, EnumProperty, Default, FromRepr, VariantArray, VariantNames, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum OpAssign {
     #[default]
     Equal,
@@ -550,35 +563,49 @@ pub enum OpAssign {
     Define,
     Question,
 }
-#[derive(Default, Clone, Debug, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[repr(usize)]
+#[derive(EnumMessage, EnumDiscriminants, EnumProperty, Default, FromRepr, VariantArray, VariantNames, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum OpMath {
     #[default]
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Rem,
-    Pow,
+    Add = 0x32 << 0x00,
+    Sub = 0x32 << 0x01,
+    Mul = 0x32 << 0x02,
+    Div = 0x32 << 0x03,
+    Rem = 0x32 << 0x04,
+    Pow = 0x32 << 0x05,
 }
-#[derive(Default, Clone, Debug, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[repr(usize)]
+#[derive(EnumMessage, EnumDiscriminants, EnumProperty, Default, FromRepr, VariantArray, VariantNames, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum OpLogic {
     #[default]
-    And,
-    Or,
-    Not,
-    Xor,
+    And = 0x16 << 0x00,
+    Or = 0x16 << 0x01,
+    Not = 0x16 << 0x02,
+    Xor = 0x16 << 0x03,
 }
-#[derive(Default, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[repr(usize)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, EnumMessage, EnumDiscriminants, EnumProperty, Default, FromRepr, VariantArray, VariantNames, Debug, Clone, EnumIs, AsRefStr, IntoStaticStr, EnumTryAs, EnumIter, EnumCount, Serialize, Display, Deserialize)]
+#[strum(serialize_all = "lowercase")]
 pub enum OpCmp {
     #[default]
-    Eq,
-    Ne,
-    Eq3,
-    Ne3,
-    Le,
-    Gt,
-    Ge,
-    Lt,
+    #[strum(serialize = "==", serialize = "eq")]
+    Eq = 0x00 << 0x00,
+    #[strum(serialize = "!=", serialize = "ne")]
+    Ne = 0x01 << 0x00,
+    #[strum(serialize = "===", serialize = "is")]
+    Eq3 = 0x02 << 0x00,
+    #[strum(serialize = "!==", serialize = "ni", serialize = "is not")]
+    Ne3 = 0x03 << 0x00,
+    #[strum(serialize = "<=", serialize = "le")]
+    Le = 0x04 << 0x00,
+    #[strum(serialize = ">=", serialize = "ge")]
+    Ge = 0x05 << 0x00,
+    #[strum(serialize = "<", serialize = "lt")]
+    Lt = 0x06 << 0x00,
+    #[strum(serialize = ">", serialize = "gt")]
+    Gt = 0x07 << 0x00,
 }
 
 impl OpAssign {
@@ -734,8 +761,8 @@ pub fn parse_num(pair: Pair<Rule>) -> Value {
             println!("uint {:#?}\t", pair.as_str());
             Value::Num(ValueNum::Uint(pair.as_str().parse().unwrap()))
         }
-        _ => Value::Num(ValueNum::default()),
         /// Complex?
+        _ => Value::Num(ValueNum::default()),
     };
     return re;
 }
@@ -845,7 +872,7 @@ pub fn parse_logic(pair: Pair<Rule>) -> OpLogic {
                 return OpLogic::Not;
             }
             Rule::xor => {
-                println!("! {:#?}\t", pair.as_rule());
+                println!("^^ {:#?}\t", pair.as_rule());
                 return OpLogic::Xor;
             }
             _ => OpLogic::default(),
